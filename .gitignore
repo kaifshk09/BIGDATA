@@ -1,0 +1,26 @@
+# --- Virtual environments (never commit these) -------------------------
+.venv/
+.venv312/
+venv/
+env/
+
+# --- Secrets -----------------------------------------------------------
+# .flask_secret holds the session/CSRF signing key.
+.flask_secret
+.env
+
+# --- Local database (scan history is per-machine) ----------------------
+phishguard.db
+phishguard.db-journal
+phishguard.db-wal
+
+# --- Python bytecode ---------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# --- Logs / OS junk ----------------------------------------------------
+*.log
+.DS_Store
+Thumbs.db

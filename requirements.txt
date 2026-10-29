@@ -4,6 +4,10 @@
 
 Flask>=3.0,<4.0
 
+# --- Production server (used by Render/Railway/Heroku via Procfile) ----
+# Gunicorn does not run on Windows; it is installed by Linux hosts only.
+gunicorn>=21.2,<24.0
+
 # --- Testing (install happens with the line above; pytest is optional) -----
 # Run the suite with:  python -m pytest -v
 # or without pytest:   python -m unittest discover -s tests -v

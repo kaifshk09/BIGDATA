@@ -1,0 +1,20 @@
+# Render.com one-click deploy blueprint.
+# In the Render dashboard: New + > Blueprint > pick this repo.
+services:
+  - type: web
+    name: phishguard
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    healthCheckPath: /healthz
+    envVars:
+      # Render generates a strong random value on first deploy.
+      - key: PHISHGUARD_SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      # SQLite lives on the ephemeral disk the free plan provides, so scan
+      # history resets on every redeploy. That is fine for a college demo.
+      - key: PHISHGUARD_DB
+        value: /tmp/phishguard.db
