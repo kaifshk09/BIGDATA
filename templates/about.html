@@ -1,0 +1,342 @@
+{% extends "base.html" %} {% block title %}About{% endblock %} {% block content
+%}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">
+      <svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg
+      >Project notes
+    </p>
+    <h1 class="page-title">About PhishGuard</h1>
+    <p class="page-sub">
+      A college mini project that helps users recognise the URL patterns
+      phishers rely on — and is honest about what heuristics can and cannot tell
+      you.
+    </p>
+  </div>
+</section>
+
+<div class="about-grid">
+  {# -------------------------------------------------------- How it works #}
+  <section class="panel" aria-labelledby="how-title">
+    <div class="panel-head">
+      <p class="eyebrow">
+        <svg class="icon" aria-hidden="true"><use href="#i-cpu"></use></svg
+        >Under the hood
+      </p>
+      <h2 id="how-title">How the analysis works</h2>
+    </div>
+    <ol class="step-list">
+      <li>
+        <span class="step-num">1</span>
+        <div>
+          <h3>Normalise &amp; validate</h3>
+          <p>
+            The URL is trimmed, given an <code>https://</code> prefix when the
+            scheme is missing, and parsed with Python's
+            <code>urllib.parse</code>. Unsupported schemes, control characters,
+            invalid ports and bare words are rejected.
+          </p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <div>
+          <h3>Extract features</h3>
+          <p>
+            Scheme, hostname, IP status, subdomain depth, punycode, hyphens,
+            port, path keywords, query size and file extensions are inspected.
+            No network request is performed — there is no DNS lookup, HTTP call
+            or redirect follow.
+          </p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <div>
+          <h3>Add documented points</h3>
+          <p>
+            Each heuristic adds a fixed number of points, listed in the table
+            below. The total is capped at 100 and mapped to a verdict, so the
+            same URL always produces the same result.
+          </p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">4</span>
+        <div>
+          <h3>Explain &amp; recommend</h3>
+          <p>
+            Every point is displayed next to a plain-English explanation,
+            followed by practical next steps. Results for valid URLs are saved
+            in SQLite so they can be reviewed later.
+          </p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="callout">
+      <svg class="icon" aria-hidden="true"><use href="#i-eye-off"></use></svg>
+      <p>
+        <strong>Privacy by design:</strong> the server never visits the
+        submitted URL, follows its redirects or executes its contents. Only the
+        text you paste is analysed and stored.
+      </p>
+    </div>
+  </section>
+
+  {# ------------------------------------------------------------- Scoring #}
+  <aside class="panel" aria-labelledby="scale-title">
+    <div class="panel-head">
+      <p class="eyebrow">
+        <svg class="icon" aria-hidden="true"><use href="#i-gauge"></use></svg
+        >Scoring
+      </p>
+      <h2 id="scale-title">Risk scale</h2>
+    </div>
+
+    <ul class="scale-list">
+      <li class="scale-item scale-low">
+        <span class="scale-range">0 – 24</span>
+        <div>
+          <strong>Lower Risk</strong>
+          <p>No major structural warning. Routine caution still applies.</p>
+        </div>
+      </li>
+      <li class="scale-item scale-suspicious">
+        <span class="scale-range">25 – 49</span>
+        <div>
+          <strong>Suspicious</strong>
+          <p>
+            Some warning signs are present. Verify the destination
+            independently.
+          </p>
+        </div>
+      </li>
+      <li class="scale-item scale-high">
+        <span class="scale-range">50 – 100</span>
+        <div>
+          <strong>High Risk</strong>
+          <p>
+            Multiple strong indicators. Do not open the link or enter details.
+          </p>
+        </div>
+      </li>
+    </ul>
+
+    <div class="stat-strip">
+      <div><span>{{ stats.total }}</span><small>scans stored</small></div>
+      <div><span>{{ stats.high }}</span><small>high risk</small></div>
+      <div><span>{{ stats.average_score }}</span><small>avg. score</small></div>
+    </div>
+  </aside>
+</div>
+
+{# --------------------------------------------------------------- Weights #}
+<section class="panel" aria-labelledby="weights-title">
+  <div class="panel-head">
+    <p class="eyebrow">
+      <svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg
+      >Transparency
+    </p>
+    <h2 id="weights-title">Heuristic rules and weights</h2>
+    <p class="panel-sub">
+      Points are fixed and documented in <code>core/analysis.py</code>. Weights
+      are an educational judgement, not a calibrated probability.
+    </p>
+  </div>
+
+  <div class="weights-grid">
+    <div class="weights-col">
+      <h3>High-impact signals</h3>
+      <ul class="weight-list">
+        <li>
+          <span>Deceptive <code>@</code> in URL</span><b class="w-high">+40</b>
+        </li>
+        <li><span>Punycode (IDN) hostname</span><b class="w-high">+30</b></li>
+        <li>
+          <span>Hex / integer host (<code>0x7f…</code>)</span
+          ><b class="w-high">+30</b>
+        </li>
+        <li><span>IP address as host</span><b class="w-high">+25</b></li>
+        <li>
+          <span>Brand name in a different domain</span><b class="w-high">+20</b>
+        </li>
+        <li>
+          <span>Username &amp; password embedded</span><b class="w-high">+20</b>
+        </li>
+        <li><span>Excessive subdomains</span><b class="w-high">+15</b></li>
+        <li><span>Risky file extension</span><b class="w-high">+15</b></li>
+        <li>
+          <span>Private / reserved IP address</span><b class="w-high">+15</b>
+        </li>
+      </ul>
+    </div>
+
+    <div class="weights-col">
+      <h3>Moderate signals</h3>
+      <ul class="weight-list">
+        <li><span>HTTP instead of HTTPS</span><b class="w-medium">+10</b></li>
+        <li>
+          <span>URL longer than 100 characters</span><b class="w-medium">+10</b>
+        </li>
+        <li>
+          <span>Hostname longer than 30 characters</span
+          ><b class="w-medium">+12</b>
+        </li>
+        <li><span>Unusual port</span><b class="w-medium">+12</b></li>
+        <li>
+          <span>Many hyphens in hostname</span><b class="w-medium">+10</b>
+        </li>
+        <li>
+          <span>Host looks numeric (<code>192.168.ten.1</code>)</span
+          ><b class="w-medium">+10</b>
+        </li>
+        <li><span>Double URL encoding</span><b class="w-medium">+10</b></li>
+        <li>
+          <span>Security keyword in hostname</span><b class="w-medium">+10</b>
+        </li>
+        <li><span>Security keyword in path</span><b class="w-medium">+8</b></li>
+        <li>
+          <span>Six or more query parameters</span><b class="w-medium">+8</b>
+        </li>
+        <li>
+          <span>Backslash / encoded slash</span><b class="w-medium">+8</b>
+        </li>
+        <li>
+          <span>Hosted on free document service</span><b class="w-medium">+8</b>
+        </li>
+        <li><span>URL shortener</span><b class="w-low">+5</b></li>
+        <li>
+          <span>Embedded URL in query string</span><b class="w-low">+5</b>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="weights-foot">
+    Informational signals (HTTPS present, <code>www.</code> prefix) never change
+    the score, because phishing sites also use HTTPS.
+  </p>
+</section>
+
+{# -------------------------------------------------------------- Project #}
+<section class="panel" id="project" aria-labelledby="project-title">
+  <div class="panel-head">
+    <p class="eyebrow">
+      <svg class="icon" aria-hidden="true"><use href="#i-book"></use></svg
+      >Project information
+    </p>
+    <h2 id="project-title">College project details</h2>
+  </div>
+
+  <div class="info-grid">
+    <div class="tech-card">
+      <div class="tech-icon">
+        <svg class="icon" aria-hidden="true"><use href="#i-code"></use></svg>
+      </div>
+      <h3>Technology stack</h3>
+      <ul class="tech-list">
+        <li>
+          <span class="tech-k">Backend</span><span>Python 3.10+, Flask 3</span>
+        </li>
+        <li>
+          <span class="tech-k">Database</span><span>SQLite 3 (built in)</span>
+        </li>
+        <li>
+          <span class="tech-k">Frontend</span
+          ><span>Jinja2, HTML5, CSS3, vanilla JS</span>
+        </li>
+        <li>
+          <span class="tech-k">Testing</span><span>unittest / pytest</span>
+        </li>
+        <li>
+          <span class="tech-k">Security</span
+          ><span>CSRF tokens, parameterised SQL, auto-escaping</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="tech-card">
+      <div class="tech-icon">
+        <svg class="icon" aria-hidden="true"><use href="#i-layers"></use></svg>
+      </div>
+      <h3>Project architecture</h3>
+      <ul class="tech-list">
+        <li>
+          <span class="tech-k">app.py</span
+          ><span>Routes, error handlers, app factory</span>
+        </li>
+        <li>
+          <span class="tech-k">core/analysis.py</span
+          ><span>Heuristic scoring engine</span>
+        </li>
+        <li>
+          <span class="tech-k">core/database.py</span
+          ><span>SQLite access layer</span>
+        </li>
+        <li>
+          <span class="tech-k">core/security.py</span
+          ><span>CSRF protection</span>
+        </li>
+        <li>
+          <span class="tech-k">templates/</span
+          ><span>Jinja2 views and macro partials</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <h3 class="sub-title">
+        <svg class="icon" aria-hidden="true">
+          <use href="#i-alert-triangle"></use></svg
+        >Known limitations
+      </h3>
+      <ul class="bullet-list">
+        <li>
+          Heuristics only — this is <strong>not</strong> a trained
+          machine-learning model or a threat-intelligence feed.
+        </li>
+        <li>
+          Scores are not probabilities and are not calibrated against a labelled
+          dataset.
+        </li>
+        <li>
+          The tool does not check page content, domain age, DNS records,
+          certificates or blocklists.
+        </li>
+        <li>
+          Legitimate URLs can trigger warnings, and well-crafted phishing URLs
+          can avoid every rule.
+        </li>
+        <li>“Lower Risk” means “no rule fired”, never “verified safe”.</li>
+        <li>The history database is shared by everyone using this computer.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="sub-title">
+        <svg class="icon" aria-hidden="true"><use href="#i-activity"></use></svg
+        >Future scope
+      </h3>
+      <ul class="bullet-list">
+        <li>Train a model on a labelled phishing URL dataset.</li>
+        <li>Optional integration with a trusted threat-intelligence API.</li>
+        <li>
+          WHOIS / domain-age checks through a reviewed, rate-limited service.
+        </li>
+        <li>User accounts and per-user history.</li>
+        <li>CSV / PDF report export for the college demonstration.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="note note-warn note-block">
+  <svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg>
+  <p>
+    <strong>Educational use only.</strong> {{ disclaimer }} Do not submit
+    private URLs containing access tokens or personal information.
+  </p>
+</div>
+{% endblock %}

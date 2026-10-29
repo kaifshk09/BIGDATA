@@ -1,0 +1,10 @@
+# PhishGuard — Python dependencies
+# Flask is the only runtime dependency; everything else uses the standard library.
+# SQLite support ships with Python itself (sqlite3), so no DB driver is needed.
+
+Flask>=3.0,<4.0
+
+# --- Testing (install happens with the line above; pytest is optional) -----
+# Run the suite with:  python -m pytest -v
+# or without pytest:   python -m unittest discover -s tests -v
+pytest>=8.0,<9.0

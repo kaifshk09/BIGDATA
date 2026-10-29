@@ -1,0 +1,45 @@
+{#-
+  Macro that renders one detected indicator row.
+
+  Usage:  {% from "_finding.html" import finding_row %}
+          {{ finding_row(finding) }}   <- finding: {code, title, detail, points, severity}
+-#}
+{% set FINDING_ICONS = {
+  'http': 'i-unlock', 'ip_host': 'i-network', 'non_public_ip': 'i-network',
+'userinfo': 'i-at', 'credentials': 'i-key', 'punycode': 'i-globe', 'subdomains':
+'i-layers', 'brand_lookalike': 'i-shield', 'hex_ip': 'i-network',
+'dangerous_file': 'i-file', 'shortener': 'i-external', 'path_keyword':
+'i-search', 'host_keyword': 'i-search', 'port': 'i-network', 'long_url':
+'i-clock', 'long_host': 'i-clock', 'https': 'i-lock', 'www': 'i-globe', 'clean':
+  'i-check', 'invalid': 'i-x-circle', 'legacy': 'i-info'
+} %}
+
+{% macro finding_row(finding) -%}
+<li
+  class="finding finding-{{ finding.severity }}"
+  data-severity="{{ finding.severity }}"
+>
+  <span class="finding-icon" aria-hidden="true">
+    <svg class="icon">
+      <use href="#{{ FINDING_ICONS.get(finding.code, 'i-alert-circle') }}"></use>
+    </svg>
+  </span>
+  <div class="finding-body">
+    <div class="finding-head">
+      <span class="finding-title">{{ finding.title }}</span>
+      {% if finding.points %}
+      <span class="points points-{{ finding.severity }}"
+        >+{{ finding.points }}</span
+      >
+      {% elif finding.severity == 'good' %}
+      <span class="points points-good">OK</span>
+      {% elif finding.severity == 'high' %}
+      <span class="points points-high">!</span>
+      {% else %}
+      <span class="points points-info">Info</span>
+      {% endif %}
+    </div>
+    <p class="finding-detail">{{ finding.detail }}</p>
+  </div>
+</li>
+{%- endmacro %}

@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% from "_finding.html" import finding_row %}
+{% from "_gauge.html" import risk_gauge %}
+
+{% block title %}Scan History{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-database"></use></svg>Local database</p>
+    <h1 class="page-title">Scan history</h1>
+    <p class="page-sub">
+      Every valid scan is stored in <code>phishguard.db</code> on this computer.
+      Entries are never uploaded anywhere.
+    </p>
+  </div>
+  <div class="head-stats" aria-label="History summary">
+    <div class="mini-stat"><span class="mini-label">Saved scans</span><span class="mini-value">{{ stats.total }}</span></div>
+    <div class="mini-stat"><span class="mini-label">Average score</span><span class="mini-value">{{ stats.average_score }}</span></div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- Filters #}
+<section class="panel filter-panel" aria-labelledby="filter-title">
+  <h2 class="sr-only" id="filter-title">Search and filter scans</h2>
+  <form class="filter-form" method="get" action="{{ url_for('history') }}" role="search">
+    <div class="filter-search">
+      <label class="sr-only" for="q">Search by URL</label>
+      <span class="input-icon" aria-hidden="true"><svg class="icon"><use href="#i-search"></use></svg></span>
+      <input id="q" name="q" type="search" class="url-input" placeholder="Search URL or hostname…"
+             value="{{ search }}" maxlength="200" autocomplete="off">
+    </div>
+
+    <div class="segmented" role="group" aria-label="Filter by risk level">
+      {% for value, label in [('all', 'All'), ('high', 'High risk'), ('suspicious', 'Suspicious'), ('lower', 'Lower risk')] %}
+        <label class="seg">
+          <input type="radio" name="risk" value="{{ value }}" {{ 'checked' if mode == value }}>
+          <span>{{ label }}</span>
+        </label>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+    {% if search or mode != 'all' %}
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('history') }}">Reset</a>
+    {% endif %}
+  </form>
+
+  {% if stats.total %}
+  <div class="filter-summary">
+    <span>
+      Showing <strong>{{ items|length }}</strong>{% if has_more %} result{{ '' if items|length == 1 else 's' }} on this page{% endif %}
+      {%- if search %} matching “<strong>{{ search }}</strong>”{% endif %}
+      {%- if mode != 'all' %} filtered by <strong>{{ {'high': 'High risk', 'suspicious': 'Suspicious', 'lower': 'Lower risk'}.get(mode, mode) }}</strong>{% endif %}
+    </span>
+    {% if allow_clear_history %}
+    <button type="button" class="btn btn-danger btn-sm" id="clearHistoryBtn"
+            data-dialog-target="clearDialog">
+      <svg class="icon" aria-hidden="true"><use href="#i-trash"></use></svg>Clear history
+    </button>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+
+{# ------------------------------------------------------------------ Table #}
+<section class="panel" aria-labelledby="table-title">
+  <div class="panel-head panel-head-row">
+    <div>
+      <p class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg>Records</p>
+      <h2 id="table-title">All scans</h2>
+    </div>
+  </div>
+
+  {% if items %}
+  <div class="table-wrap">
+    <table class="data-table history-table">
+      <caption class="sr-only">Saved URL scans, newest first</caption>
+      <thead>
+        <tr>
+          <th scope="col">URL</th>
+          <th scope="col">Date &amp; time</th>
+          <th scope="col" class="col-num">Score</th>
+          <th scope="col">Verdict</th>
+          <th scope="col" class="col-actions"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        {% set row = item.row %}
+        <tr class="history-row">
+          <td class="cell-url" data-label="URL">
+            <span class="mono-url" title="{{ row['url'] }}">{{ row['url']|shorten(72) }}</span>
+            {% if item.findings %}
+            <button type="button" class="details-toggle" data-details-toggle aria-expanded="false"
+                    aria-controls="details-{{ row['id'] }}">
+              <svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg>
+              {{ item.findings|length }} indicator{{ '' if item.findings|length == 1 else 's' }}
+            </button>
+            {% endif %}
+          </td>
+          <td class="cell-time" data-label="Date &amp; time">{{ format_time(row['scanned_at']) }}</td>
+          <td class="cell-score" data-label="Score">
+            <span class="mini-score mini-{{ item.slug }}">{{ row['score'] }}</span>
+          </td>
+          <td data-label="Verdict">
+            <span class="badge badge-{{ item.slug }}">
+              <span class="badge-dot" aria-hidden="true"></span>{{ row['verdict'] }}
+            </span>
+          </td>
+          <td class="cell-actions" data-label="Actions">
+            <form method="post" action="{{ url_for('delete_history_item', scan_id=row['id']) }}"
+                  class="inline-form" data-confirm="Delete this scan record? This cannot be undone.">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="icon-btn" title="Delete this record" aria-label="Delete scan record {{ row['id'] }}">
+                <svg class="icon" aria-hidden="true"><use href="#i-trash"></use></svg>
+              </button>
+            </form>
+          </td>
+        </tr>
+        <tr class="details-row" id="details-{{ row['id'] }}" hidden>
+          <td colspan="5">
+            <div class="details-panel">
+              <div class="details-gauge">
+                {{ risk_gauge(row['score'], item.slug, row['verdict']) }}
+              </div>
+              <ul class="finding-list">
+                {% for finding in item.findings %}
+                  {{ finding_row(finding) }}
+                {% endfor %}
+              </ul>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <nav class="pager" aria-label="Pagination">
+    {% if page > 1 %}
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('history', q=search, risk=mode, page=page-1) }}">← Previous</a>
+    {% else %}
+      <span class="btn btn-ghost btn-sm is-disabled" aria-disabled="true">← Previous</span>
+    {% endif %}
+    <span class="pager-info">Page {{ page }}</span>
+    {% if has_more %}
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('history', q=search, risk=mode, page=page+1) }}">Next →</a>
+    {% else %}
+      <span class="btn btn-ghost btn-sm is-disabled" aria-disabled="true">Next →</span>
+    {% endif %}
+  </nav>
+
+  {% elif stats.total == 0 %}
+  <div class="empty-state">
+    <div class="empty-icon" aria-hidden="true"><svg class="icon"><use href="#i-history"></use></svg></div>
+    <h3>Your history is empty</h3>
+    <p>Scan a URL and the result will be saved here automatically.</p>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('index') }}#scanner">
+      <svg class="icon" aria-hidden="true"><use href="#i-scan"></use></svg>Scan your first URL
+    </a>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon" aria-hidden="true"><svg class="icon"><use href="#i-search"></use></svg></div>
+    <h3>No matching scans</h3>
+    <p>No record matches your search{% if search %} “{{ search }}”{% endif %}{% if mode != 'all' %} in the selected risk level{% endif %}.</p>
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('history') }}">Clear filters</a>
+  </div>
+  {% endif %}
+</section>
+
+{# ------------------------------------------------------- Clear history UI #}
+{% if allow_clear_history and stats.total %}
+<dialog class="dialog" id="clearDialog" aria-labelledby="clearTitle" aria-describedby="clearDesc">
+  <div class="dialog-icon danger"><svg class="icon" aria-hidden="true"><use href="#i-trash"></use></svg></div>
+  <h2 id="clearTitle">Clear all scan history?</h2>
+  <p id="clearDesc">
+    This permanently deletes <strong>{{ stats.total }}</strong> saved scan{{ '' if stats.total == 1 else 's' }}
+    from the SQLite database. This action cannot be undone.
+  </p>
+  <form method="post" action="{{ url_for('clear_history') }}" class="dialog-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="clearConfirm">Type <strong>CLEAR</strong> to confirm</label>
+    <input id="clearConfirm" name="confirm" type="text" autocomplete="off" spellcheck="false"
+           pattern="[Cc][Ll][Ee][Aa][Rr]" required placeholder="CLEAR">
+    <p class="field-hint">The word is checked again on the server.</p>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-ghost" data-dialog-close>Cancel</button>
+      <button type="submit" class="btn btn-danger">Delete everything</button>
+    </div>
+  </form>
+</dialog>
+{% endif %}
+{% endblock %}
