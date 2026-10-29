@@ -1,13 +1,8 @@
-{% extends "base.html" %}
-{% from "_finding.html" import finding_row %}
-{% from "_gauge.html" import risk_gauge %}
-
-{% block title %}Dashboard{% endblock %}
-
-{% block content %}
-{# =====================================================================
-   HERO
-   ===================================================================== #}
+{% extends "base.html" %} {% from "_finding.html" import finding_row %} {% from
+"_gauge.html" import risk_gauge %} {% block title %}Dashboard{% endblock %} {%
+block content %} {#
+===================================================================== HERO
+===================================================================== #}
 <section class="hero">
   <div class="hero-content">
     <span class="pill">
@@ -16,87 +11,143 @@
     </span>
     <h1>Check a link <span class="grad-text">before you trust it.</span></h1>
     <p class="hero-sub">
-      PhishGuard inspects the <strong>structure</strong> of a URL for common phishing
-      warning signs and explains every point it adds. It never opens, or fetches, the address.
+      PhishGuard inspects the <strong>structure</strong> of a URL for common
+      phishing warning signs and explains every point it adds. It never opens,
+      or fetches, the address.
     </p>
     <div class="hero-points">
-      <span><svg class="icon" aria-hidden="true"><use href="#i-eye-off"></use></svg>No URL is visited</span>
-      <span><svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg>Explainable scoring</span>
-      <span><svg class="icon" aria-hidden="true"><use href="#i-database"></use></svg>Saved locally</span>
+      <span
+        ><svg class="icon" aria-hidden="true"><use href="#i-eye-off"></use></svg
+        >No URL is visited</span
+      >
+      <span
+        ><svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg
+        >Explainable scoring</span
+      >
+      <span
+        ><svg class="icon" aria-hidden="true">
+          <use href="#i-database"></use></svg
+        >Saved locally</span
+      >
     </div>
   </div>
 
   <div class="hero-visual" aria-hidden="true">
     <div class="scan-card">
       <div class="scan-card-top">
-        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot"></span
+        ><span class="dot"></span>
         <span class="scan-card-title">phishguard://analyze</span>
       </div>
-      <div class="scan-line"><span class="k">scheme</span><span class="v ok">https</span></div>
-      <div class="scan-line"><span class="k">host</span><span class="v">secure-login<b>.example.com</b></span></div>
-      <div class="scan-line"><span class="k">@ trick</span><span class="v warn">detected +40</span></div>
-      <div class="scan-line"><span class="k">domain age</span><span class="v muted">not checked</span></div>
+      <div class="scan-line">
+        <span class="k">scheme</span><span class="v ok">https</span>
+      </div>
+      <div class="scan-line">
+        <span class="k">host</span
+        ><span class="v">secure-login<b>.example.com</b></span>
+      </div>
+      <div class="scan-line">
+        <span class="k">@ trick</span><span class="v warn">detected +40</span>
+      </div>
+      <div class="scan-line">
+        <span class="k">domain age</span
+        ><span class="v muted">not checked</span>
+      </div>
       <div class="scan-meter"><span></span></div>
       <div class="scan-foot"><span>risk</span><strong>88 / 100</strong></div>
     </div>
   </div>
 </section>
 
-{# =====================================================================
-   STATS
-   ===================================================================== #}
+{# ===================================================================== STATS
+===================================================================== #}
 <section class="stat-grid" aria-label="Scan statistics">
   <article class="stat-card stat-total">
-    <div class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-activity"></use></svg></div>
+    <div class="stat-icon">
+      <svg class="icon" aria-hidden="true"><use href="#i-activity"></use></svg>
+    </div>
     <div class="stat-body">
       <p class="stat-label">Total scans</p>
-      <p class="stat-value" data-count-to="{{ stats.total }}">{{ stats.total }}</p>
+      <p class="stat-value" data-count-to="{{ stats.total }}">
+        {{ stats.total }}
+      </p>
       <p class="stat-note">Saved in the local database</p>
     </div>
   </article>
   <article class="stat-card stat-high">
-    <div class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-alert-triangle"></use></svg></div>
+    <div class="stat-icon">
+      <svg class="icon" aria-hidden="true">
+        <use href="#i-alert-triangle"></use>
+      </svg>
+    </div>
     <div class="stat-body">
       <p class="stat-label">High risk</p>
-      <p class="stat-value" data-count-to="{{ stats.high }}">{{ stats.high }}</p>
+      <p class="stat-value" data-count-to="{{ stats.high }}">
+        {{ stats.high }}
+      </p>
       <p class="stat-note">Score 50 – 100</p>
     </div>
   </article>
   <article class="stat-card stat-suspicious">
-    <div class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-alert-circle"></use></svg></div>
+    <div class="stat-icon">
+      <svg class="icon" aria-hidden="true">
+        <use href="#i-alert-circle"></use>
+      </svg>
+    </div>
     <div class="stat-body">
       <p class="stat-label">Suspicious</p>
-      <p class="stat-value" data-count-to="{{ stats.suspicious }}">{{ stats.suspicious }}</p>
+      <p class="stat-value" data-count-to="{{ stats.suspicious }}">
+        {{ stats.suspicious }}
+      </p>
       <p class="stat-note">Score 25 – 49</p>
     </div>
   </article>
   <article class="stat-card stat-low">
-    <div class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-shield-check"></use></svg></div>
+    <div class="stat-icon">
+      <svg class="icon" aria-hidden="true">
+        <use href="#i-shield-check"></use>
+      </svg>
+    </div>
     <div class="stat-body">
       <p class="stat-label">Lower risk</p>
-      <p class="stat-value" data-count-to="{{ stats.lower }}">{{ stats.lower }}</p>
+      <p class="stat-value" data-count-to="{{ stats.lower }}">
+        {{ stats.lower }}
+      </p>
       <p class="stat-note">Score 0 – 24</p>
     </div>
   </article>
 </section>
 
-{# =====================================================================
-   SCANNER
-   ===================================================================== #}
+{# ===================================================================== SCANNER
+===================================================================== #}
 <section class="scanner panel" id="scanner" aria-labelledby="scanner-title">
   <div class="panel-head">
     <div>
-      <p class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-scan"></use></svg>URL scanner</p>
+      <p class="eyebrow">
+        <svg class="icon" aria-hidden="true"><use href="#i-scan"></use></svg>URL
+        scanner
+      </p>
       <h2 id="scanner-title">Analyze a suspicious link</h2>
-      <p class="panel-sub">Paste a full URL such as <code>https://example.com/login</code>. A scheme of <code>https://</code> is added automatically if you omit it.</p>
+      <p class="panel-sub">
+        Paste a full URL such as <code>https://example.com/login</code>. A
+        scheme of <code>https://</code> is added automatically if you omit it.
+      </p>
     </div>
   </div>
 
-  <form class="scan-form" method="post" action="{{ url_for('scan') }}" id="scanForm" novalidate>
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <form
+    class="scan-form"
+    method="post"
+    action="{{ url_for('scan') }}"
+    id="scanForm"
+    novalidate
+  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <div class="input-group">
       <label class="sr-only" for="url">Website URL</label>
-      <span class="input-icon" aria-hidden="true"><svg class="icon"><use href="#i-globe"></use></svg></span>
+      <span class="input-icon" aria-hidden="true"
+        ><svg class="icon"><use href="#i-globe"></use></svg
+      ></span>
       <input
         id="url"
         name="url"
@@ -110,24 +161,56 @@
         spellcheck="false"
         inputmode="url"
         aria-describedby="url-help url-error"
-        required>
+        required
+      />
       <button type="submit" class="btn btn-primary btn-scan" id="analyzeBtn">
-        <span class="btn-label"><svg class="icon" aria-hidden="true"><use href="#i-shield-check"></use></svg>Analyze URL</span>
-        <span class="btn-loading"><span class="spinner" aria-hidden="true"></span>Analyzing…</span>
+        <span class="btn-label"
+          ><svg class="icon" aria-hidden="true">
+            <use href="#i-shield-check"></use></svg
+          >Analyze URL</span
+        >
+        <span class="btn-loading"
+          ><span class="spinner" aria-hidden="true"></span>Analyzing…</span
+        >
       </button>
     </div>
     <p class="field-error" id="url-error" role="alert" hidden></p>
     <div class="form-foot">
       <small id="url-help">
         <svg class="icon" aria-hidden="true"><use href="#i-eye-off"></use></svg>
-        The URL is only parsed as text — PhishGuard does not open, fetch or execute it.
+        The URL is only parsed as text — PhishGuard does not open, fetch or
+        execute it.
       </small>
       <div class="examples" aria-label="Example URLs">
         <span>Try:</span>
-        <button type="button" class="chip" data-fill-url="https://www.google.com">google.com</button>
-        <button type="button" class="chip" data-fill-url="http://192.168.1.10/login">IP login</button>
-        <button type="button" class="chip" data-fill-url="https://www.paypal.com@secure-verify.example.com/login">@ trick</button>
-        <button type="button" class="chip" data-fill-url="http://bit.ly/3xPhish">short link</button>
+        <button
+          type="button"
+          class="chip"
+          data-fill-url="https://www.google.com"
+        >
+          google.com
+        </button>
+        <button
+          type="button"
+          class="chip"
+          data-fill-url="http://192.168.1.10/login"
+        >
+          IP login
+        </button>
+        <button
+          type="button"
+          class="chip"
+          data-fill-url="https://www.paypal.com@secure-verify.example.com/login"
+        >
+          @ trick
+        </button>
+        <button
+          type="button"
+          class="chip"
+          data-fill-url="http://bit.ly/3xPhish"
+        >
+          short link
+        </button>
       </div>
     </div>
   </form>
@@ -145,17 +228,22 @@
   </div>
 </section>
 
-{# =====================================================================
-   RESULT
-   ===================================================================== #}
-{% if result %}
-{% set slug = result.level_slug %}
-{% set meta = verdict_meta.get(result.verdict, {'icon': 'i-alert-circle', 'summary': ''}) %}
-<section class="result result-{{ slug }}" id="result" aria-live="polite" data-reveal>
+{# ===================================================================== RESULT
+===================================================================== #} {% if
+result %} {% set slug = result.level_slug %} {% set meta =
+verdict_meta.get(result.verdict, {'icon': 'i-alert-circle', 'summary': ''}) %}
+<section
+  class="result result-{{ slug }}"
+  id="result"
+  aria-live="polite"
+  data-reveal
+>
   <div class="result-head">
     <div class="result-title">
       <span class="result-badge">
-        <svg class="icon" aria-hidden="true"><use href="#{{ meta.icon }}"></use></svg>
+        <svg class="icon" aria-hidden="true">
+          <use href="#{{ meta.icon }}"></use>
+        </svg>
       </span>
       <div>
         <p class="eyebrow">Scan result</p>
@@ -169,7 +257,9 @@
   <div class="result-url">
     <svg class="icon" aria-hidden="true"><use href="#i-globe"></use></svg>
     {#- URLs are always escaped by Jinja; nothing here is marked safe. -#}
-    <span class="url-text">{{ result.normalized_url or result.input_url }}</span>
+    <span class="url-text"
+      >{{ result.normalized_url or result.input_url }}</span
+    >
   </div>
 
   <div class="risk-bar" aria-hidden="true">
@@ -177,19 +267,23 @@
     <span class="risk-bar-mark mark-25" title="Suspicious from 25"></span>
     <span class="risk-bar-mark mark-50" title="High risk from 50"></span>
   </div>
-  <div class="risk-scale" aria-hidden="true"><span>0 · Lower</span><span>25 · Suspicious</span><span>50 · High</span><span>100</span></div>
+  <div class="risk-scale" aria-hidden="true">
+    <span>0 · Lower</span><span>25 · Suspicious</span><span>50 · High</span
+    ><span>100</span>
+  </div>
 
   {% if result.is_valid %}
   <div class="result-grid">
     <div class="result-col">
       <h3 class="col-title">
         Detected indicators
-        <span class="count-badge">{{ result.findings|selectattr('points')|list|length }}</span>
+        <span class="count-badge"
+          >{{ result.findings|selectattr('points')|list|length }}</span
+        >
       </h3>
       <ul class="finding-list">
-        {% for finding in result.findings %}
-          {{ finding_row(finding.as_dict()) }}
-        {% endfor %}
+        {% for finding in result.findings %} {{ finding_row(finding.as_dict())
+        }} {% endfor %}
       </ul>
     </div>
 
@@ -200,47 +294,59 @@
       </h3>
       <ol class="recommend-list">
         {% for rec in result.recommendations %}
-          <li><span class="rec-num">{{ loop.index }}</span><span>{{ rec }}</span></li>
+        <li>
+          <span class="rec-num">{{ loop.index }}</span><span>{{ rec }}</span>
+        </li>
         {% endfor %}
       </ol>
 
       <div class="note note-warn">
-        <svg class="icon" aria-hidden="true"><use href="#i-alert-circle"></use></svg>
+        <svg class="icon" aria-hidden="true">
+          <use href="#i-alert-circle"></use>
+        </svg>
         <p><strong>This is an estimate.</strong> {{ disclaimer }}</p>
       </div>
     </div>
   </div>
   {% else %}
   <div class="invalid-box">
-    <p><strong>This input was not scored.</strong> Invalid addresses are not saved to history. Check the address and try again.</p>
+    <p>
+      <strong>This input was not scored.</strong> Invalid addresses are not
+      saved to history. Check the address and try again.
+    </p>
     <ul class="finding-list">
-      {% for finding in result.findings %}
-        {{ finding_row(finding.as_dict()) }}
+      {% for finding in result.findings %} {{ finding_row(finding.as_dict()) }}
       {% endfor %}
     </ul>
   </div>
   {% endif %}
 </section>
-{% endif %}
-
-{# =====================================================================
-   RECENT SCANS
-   ===================================================================== #}
+{% endif %} {#
+===================================================================== RECENT
+SCANS ===================================================================== #}
 <section class="panel" aria-labelledby="recent-title" data-reveal>
   <div class="panel-head panel-head-row">
     <div>
-      <p class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-history"></use></svg>Activity</p>
+      <p class="eyebrow">
+        <svg class="icon" aria-hidden="true"><use href="#i-history"></use></svg
+        >Activity
+      </p>
       <h2 id="recent-title">Recent scans</h2>
     </div>
     <a class="btn btn-ghost btn-sm" href="{{ url_for('history') }}">
-      View all history <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+      View all history
+      <svg class="icon" aria-hidden="true">
+        <use href="#i-arrow-right"></use>
+      </svg>
     </a>
   </div>
 
   {% if recent %}
   <div class="table-wrap">
     <table class="data-table">
-      <caption class="sr-only">Five most recent URL scans</caption>
+      <caption class="sr-only">
+        Five most recent URL scans
+      </caption>
       <thead>
         <tr>
           <th scope="col">URL</th>
@@ -250,11 +356,12 @@
         </tr>
       </thead>
       <tbody>
-        {% for row in recent %}
-        {% set s = risk_slug(row['verdict']) %}
+        {% for row in recent %} {% set s = risk_slug(row['verdict']) %}
         <tr>
           <td class="cell-url" data-label="URL">
-            <span class="mono-url" title="{{ row['url'] }}">{{ row['url']|shorten(58) }}</span>
+            <span class="mono-url" title="{{ row['url'] }}"
+              >{{ row['url']|shorten(58) }}</span
+            >
           </td>
           <td class="cell-time" data-label="Scanned">
             <span>{{ format_time(row['scanned_at']) }}</span>
@@ -264,7 +371,8 @@
           </td>
           <td data-label="Verdict">
             <span class="badge badge-{{ s }}">
-              <span class="badge-dot" aria-hidden="true"></span>{{ row['verdict'] }}
+              <span class="badge-dot" aria-hidden="true"></span>{{
+              row['verdict'] }}
             </span>
           </td>
         </tr>
@@ -274,7 +382,9 @@
   </div>
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon" aria-hidden="true"><svg class="icon"><use href="#i-scan"></use></svg></div>
+    <div class="empty-icon" aria-hidden="true">
+      <svg class="icon"><use href="#i-scan"></use></svg>
+    </div>
     <h3>No scans yet</h3>
     <p>Your analysis history will appear here once you scan your first URL.</p>
     <a class="btn btn-primary btn-sm" href="#scanner">Scan a URL</a>
@@ -282,33 +392,53 @@
   {% endif %}
 </section>
 
-{# =====================================================================
-   HOW IT WORKS / FEATURES
-   ===================================================================== #}
+{# ===================================================================== HOW IT
+WORKS / FEATURES
+===================================================================== #}
 <section class="feature-grid" aria-label="How PhishGuard works">
   <article class="feature-card">
     <span class="feature-num">01</span>
-    <div class="feature-icon"><svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg></div>
+    <div class="feature-icon">
+      <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+    </div>
     <h3>Inspect</h3>
-    <p>The URL is parsed into scheme, host, path and query with Python's standard parser — no network access.</p>
+    <p>
+      The URL is parsed into scheme, host, path and query with Python's standard
+      parser — no network access.
+    </p>
   </article>
   <article class="feature-card">
     <span class="feature-num">02</span>
-    <div class="feature-icon"><svg class="icon" aria-hidden="true"><use href="#i-cpu"></use></svg></div>
+    <div class="feature-icon">
+      <svg class="icon" aria-hidden="true"><use href="#i-cpu"></use></svg>
+    </div>
     <h3>Score</h3>
-    <p>19 documented heuristic rules add points for behaviours such as <code>@</code> tricks, IP hosts and punycode.</p>
+    <p>
+      19 documented heuristic rules add points for behaviours such as
+      <code>@</code> tricks, IP hosts and punycode.
+    </p>
   </article>
   <article class="feature-card">
     <span class="feature-num">03</span>
-    <div class="feature-icon"><svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg></div>
+    <div class="feature-icon">
+      <svg class="icon" aria-hidden="true"><use href="#i-list"></use></svg>
+    </div>
     <h3>Explain</h3>
-    <p>Every point is shown with a plain-English explanation and a matching recommendation.</p>
+    <p>
+      Every point is shown with a plain-English explanation and a matching
+      recommendation.
+    </p>
   </article>
   <article class="feature-card">
     <span class="feature-num">04</span>
-    <div class="feature-icon"><svg class="icon" aria-hidden="true"><use href="#i-database"></use></svg></div>
+    <div class="feature-icon">
+      <svg class="icon" aria-hidden="true"><use href="#i-database"></use></svg>
+    </div>
     <h3>Remember</h3>
-    <p>Results are stored in a local SQLite database so you can search and filter past scans.</p>
+    <p>
+      Results are stored in a local SQLite database so you can search and filter
+      past scans.
+    </p>
   </article>
 </section>
 {% endblock %}

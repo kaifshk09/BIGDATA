@@ -1,15 +1,26 @@
-{#- Circular risk gauge. Variables: score (0-100), slug (high|suspicious|low|invalid), size -#}
-{% macro risk_gauge(score, slug, label="risk") -%}
-{% set safe_score = [[score|int, 0]|max, 100]|min %}
-<div class="gauge gauge-{{ slug }}" role="img" aria-label="Risk score {{ safe_score }} out of 100, {{ label }}">
+{#- Circular risk gauge. Variables: score (0-100), slug
+(high|suspicious|low|invalid), size -#} {% macro risk_gauge(score, slug,
+label="risk") -%} {% set safe_score = [[score|int, 0]|max, 100]|min %}
+<div
+  class="gauge gauge-{{ slug }}"
+  role="img"
+  aria-label="Risk score {{ safe_score }} out of 100, {{ label }}"
+>
   <svg viewBox="0 0 120 120" class="gauge-svg" aria-hidden="true">
     <circle class="gauge-track" cx="60" cy="60" r="52"></circle>
-    <circle class="gauge-fill" cx="60" cy="60" r="52"
-            style="--offset: {{ 326.73 - (326.73 * safe_score / 100) }}"
-            data-target-offset="{{ 326.73 - (326.73 * safe_score / 100) }}"></circle>
+    <circle
+      class="gauge-fill"
+      cx="60"
+      cy="60"
+      r="52"
+      style="--offset: {{ 326.73 - (326.73 * safe_score / 100) }}"
+      data-target-offset="{{ 326.73 - (326.73 * safe_score / 100) }}"
+    ></circle>
   </svg>
   <div class="gauge-center">
-    <span class="gauge-score" data-count-to="{{ safe_score }}">{{ safe_score }}</span>
+    <span class="gauge-score" data-count-to="{{ safe_score }}"
+      >{{ safe_score }}</span
+    >
     <span class="gauge-unit">/ 100</span>
   </div>
 </div>
